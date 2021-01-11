@@ -1,6 +1,19 @@
 import { Toolbar } from '../components/toolbar'
 import styles from '../styles/EOM.module.css'
 
+export const getServerSideProps = async pageContext => {
+  const apiResponse = await fetch(
+    'https://my-json-server.typicode.com/trevorschwab/next-news/employeeOfTheMonth',
+  );
+  const employee = await apiResponse.json();
+
+  return {
+    props: {
+      employee,
+    }
+  }
+}
+
 export const EOM = ({ employee }) => {
   return(
     <div className='page-container'>

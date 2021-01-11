@@ -2,6 +2,39 @@ import styles from '../../styles/Feed.module.css';
 import { useRouter } from 'next/router';
 import { Toolbar } from '../../components/toolbar'
 
+export const getServerSideProps = async pageContext => {
+  const pageNumber = pageContext.query.slug;
+
+  if (!pageNumber || pageNumber < 1 || pageNumber > 5) {
+    return {
+      props: {
+        articles: [],
+        pageNumber: 1,
+      }
+    }
+  }
+
+  const apiResponse = await fetch(
+    `https://newsapi.org/v2/top-headlines?country=us&pageSize=5&page=${pageNumber}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_NEWS_KEY}`,
+      },
+    },
+  )
+
+  const apiJSON = await apiResponse.json();
+
+  const { articles } = apiJSON;
+
+  return {
+    props: {
+      articles,
+      pageNumber: Number.parseInt(pageNumber),
+    }
+  }
+}
+
 export const Feed = ({ pageNumber, articles }) => {
   const router = useRouter();
   return (
@@ -36,38 +69,5 @@ export const Feed = ({ pageNumber, articles }) => {
     </div>
   )
 };
-
-export const getServerSideProps = async pageContext => {
-  const pageNumber = pageContext.query.slug;
-
-  if (!pageNumber || pageNumber < 1 || pageNumber > 5) {
-    return {
-      props: {
-        articles: [],
-        pageNumber: 1,
-      }
-    }
-  }
-
-  const apiResponse = await fetch(
-    `https://newsapi.org/v2/top-headlines?country=us&pageSize=5&page=${pageNumber}`,
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_NEWS_KEY}`,
-      },
-    },
-  )
-
-  const apiJSON = await apiResponse.json();
-
-  const { articles } = apiJSON;
-
-  return {
-    props: {
-      articles,
-      pageNumber: Number.parseInt(pageNumber),
-    }
-  }
-}
 
 export default Feed;
